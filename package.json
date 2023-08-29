@@ -1,0 +1,31 @@
+{
+  "name": "eriko-ikeda",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "typecheck": "npm run typecheck --ws",
+    "dev": "npm run dev -w apps/web",
+    "preview": "npm run preview -w apps/web",
+    "build:web:development": "npm run build development -w apps/web",
+    "build:web:production": "npm run build production -w apps/web",
+    "deploy:web:development": "env-cmd -f ./configs/development/.env npx -w apps/web-infra cdk deploy --all --app \"npx ts-node bin/webApplication.ts\"",
+    "deploy:web:production": "env-cmd -f ./configs/production/.env npx -w apps/web-infra cdk deploy --all --app \"npx ts-node bin/webApplication.ts\"",
+    "deploy:web-infra:development": "env-cmd -f ./configs/development/.env npx -w apps/web-infra cdk deploy --all --app \"npx ts-node bin/webDeployment.ts\"",
+    "deploy:web-infra:production": "env-cmd -f ./configs/production/.env npx -w apps/web-infra cdk deploy --all --app \"npx ts-node bin/webDeployment.ts\""
+  },
+  "devDependencies": {
+    "env-cmd": "10.1.0",
+    "esbuild": "0.16.17",
+    "esbuild-node-externals": "1.6.0",
+    "fast-glob": "3.2.12",
+    "husky": "8.0.3",
+    "jest": "29.4.1",
+    "lint-staged": "13.1.0",
+    "shellcheck": "^2.2.0"
+  },
+  "workspaces": ["apps/*"],
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

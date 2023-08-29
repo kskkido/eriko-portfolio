@@ -1,0 +1,117 @@
+---
+import "@pagefind/default-ui/css/ui.css";
+
+interface Props {
+  class?: string;
+}
+
+const searchElementId = 'search';
+const { class: className } = Astro.props;
+---
+<page-search data-element-id={searchElementId} class:list={["ms-auto", className ?? '']}>
+	<button
+		class=""
+		data-type="show-modal"
+	>
+    <span>
+      Search
+    </span>
+	</button>
+	<dialog
+		aria-label="search"
+		class="h-full max-h-full w-full max-w-full border border-zinc-400 bg-bgColor shadow backdrop:backdrop-blur sm:mx-auto sm:mb-auto sm:mt-16 sm:h-max sm:max-h-[calc(100%-8rem)] sm:min-h-[15rem] sm:w-5/6 sm:max-w-[48rem] sm:rounded-md"
+	>
+		<div class="dialog-frame flex flex-col gap-4 p-6 pt-12 sm:pt-6">
+			<button
+				class="ms-auto cursor-pointer rounded-md p-2 font-semibold dark:bg-zinc-700"
+        data-type="hide-modal"
+				>Close</button
+			>
+      <div class="search-container">
+        <div id={searchElementId} />
+      </div>
+		</div>
+	</dialog>
+</page-search>
+<script>
+  type Config = {
+    window: Window;
+    elementId: string;
+  }
+
+  class PageSearch extends HTMLElement {
+    constructor() {
+      super();
+    }
+
+    connectedCallback() {
+      const config = {
+        window: window,
+        elementId: this.dataset.elementId || ''
+      }
+
+      if (typeof config.elementId !== 'string') {
+        return
+      } else {
+          this.main(config)
+      }
+    }
+
+    main(config: Config) {
+      const onIdle = config.window.requestIdleCallback || ((cb) => setTimeout(cb, 1));
+      onIdle(async () => {
+        const { PagefindUI } = await import("@pagefind/default-ui");
+        new PagefindUI({
+          element: `#${config.elementId}`,
+          resetStyles: false,
+          showImages: false,
+        });
+        this.setup(config);
+      })
+    }
+
+    setup(config: Config) {
+			const dialog = this.querySelector("dialog")!;
+			const dialogFrame = this.querySelector(".dialog-frame")!;
+  		const showModalButton = this.querySelector<HTMLButtonElement>("button[data-type=show-modal]")!;
+			const hideModalButton = this.querySelector<HTMLButtonElement>("button[data-type=hide-modal]")!;
+
+			const showModal = (event?: MouseEvent) => {
+				dialog?.showModal();
+				this.querySelector("input")?.focus();
+				event?.stopPropagation();
+				config.window.addEventListener("click", onWindowClick);
+			};
+			const hideModal = () => {
+				dialog?.close();
+				config.window.removeEventListener("click", onWindowClick);
+			};
+      const onWindowClick = (event: MouseEvent) => {
+				if (
+					document.body.contains(event.target as Node) &&
+					!dialogFrame?.contains(event.target as Node)
+        ) {
+          hideModal();
+        }
+      }
+      const onWindowKeyDown = (event: KeyboardEvent) => {
+        if (event.key === "/" && !dialog?.open) {
+          showModal();
+          event.preventDefault();
+        }
+      }
+
+      showModalButton.addEventListener('click', showModal);
+      hideModalButton.addEventListener('click', hideModal);
+      config.window.addEventListener('keydown', onWindowKeyDown);
+
+      return () => {
+        showModalButton.removeEventListener('click', showModal);
+        hideModalButton.removeEventListener('click', hideModal);
+        config.window.removeEventListener('keydown', onWindowKeyDown);
+      }
+    }
+  }
+
+  customElements.define("page-search", PageSearch);
+</script>

@@ -1,0 +1,50 @@
+---
+import * as core from 'src/core';
+import type { Router } from 'src/capabilities/router';
+import ListContent from 'src/layouts/ListContent.astro';
+import Title from 'src/components/Title.astro';
+
+interface Props {
+  router: Router;
+  translations: ReadonlyArray<core.types.Translation>;
+}
+
+const main = () => {
+  const { router, translations } = Astro.props;
+  const tagGroups = core.translation.groupByTags(translations);
+  return {
+    router,
+    tagGroups
+  }
+}
+
+const {
+  router,
+  tagGroups
+} = main()
+---
+<ListContent>
+  <Fragment slot="body">
+    <Title class="mb-8">
+      {'Tags'}
+      <span class="ml-1 text-sm font-normal align-top">
+        {tagGroups.length}
+      </span>
+    </Title>
+    <ul class="w-full">
+      {tagGroups.map(([tag, translations]) => (
+        <li class="pb-8 mb-8 border-b border-gray-200">
+          <div class="flex sm:flex-row sm:justify-between sm:items-center flex-col mb-2">
+            <a class="block text-lg text-gray-800 col-start-1 hover:underline" href={core.path.fromPathByLocale(`tags/${tag.id}`)(router.locale)}>
+              #{tag.id}
+            </a>
+            <span class="text-sm text-gray-500 col-start-2 justify-self-end">
+              {translations.length} {translations.length === 1 ? 'post' : 'posts'}
+            </span>
+          </div>
+        </li>
+      ))}
+    </ul>
+  </Fragment>
+</ListContent>
+

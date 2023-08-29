@@ -1,0 +1,13 @@
+---
+const { class: className, ...rest } = Astro.props
+---
+<main class:list={["sm:grid sm:grid-cols-9 sm:gap-12 flex-grow w-full", className]} {...rest}>
+  <div class="sm:col-span-6 md:col-span-5 w-full">
+    <slot name="body" />
+  </div>
+  <div class="sm:col-span-3 md:col-span-4 sm:col-end-10 sm:block hidden">
+    <slot name="image" />
+  </div>
+</main>
+<style>
+</style>

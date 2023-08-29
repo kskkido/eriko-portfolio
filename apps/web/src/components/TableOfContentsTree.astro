@@ -1,0 +1,30 @@
+---
+import type * as core from 'src/core';
+
+interface Props {
+  content: core.types.TableOfContents;
+  depth?: number;
+  maxDepth?: number;
+} 
+
+const {
+  content,
+  depth = 0,
+  maxDepth = 3,
+} = Astro.props as Props;
+---
+<ul class:list={["table-of-contents", "text-base", depth > 0 ? `pl-3` : '' ]}>
+  {content.map(node => (
+    <li class="mb-2">
+      <div class="mb-2">
+        <span class="mr-2">
+          -
+        </span>
+        <a href={`#${node.header.id}`}>
+          {node.header.title}
+        </a>
+      </div>
+      {node.children.length && maxDepth >= depth ? <Astro.self content={node.children} depth={depth + 1} maxDepth={maxDepth} /> : undefined}
+    </li>
+  ))}
+</ul>

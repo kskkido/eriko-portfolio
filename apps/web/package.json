@@ -1,0 +1,40 @@
+{
+  "name": "@eriko-ikeda/web",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "astro": "astro",
+    "build": "func() { ./bin/build $1; }; func",
+    "dev": "env-cmd -f ./.env.local astro dev",
+    "postbuild": "pagefind --source dist",
+    "preview": "astro preview",
+    "start": "astro dev",
+    "typecheck": "tsc --noEmit -p ./tsconfig.json"
+  },
+  "dependencies": {
+    "@astrojs/tailwind": "4.0.0",
+    "@contentful/rich-text-html-renderer": "16.1.1",
+    "@contentful/rich-text-types": "16.2.1",
+    "@pagefind/default-ui": "^0.12.0",
+    "astro": "^2.10.14",
+    "astro-icon": "0.8.1",
+    "autoprefixer": "^10.4.14",
+    "contentful": "10.5.0",
+    "fp-ts": "2.13.1",
+    "io-ts": "2.2.20",
+    "io-ts-types": "0.5.19",
+    "monocle-ts": "2.3.13",
+    "newtype-ts": "0.3.5",
+    "pagefind": "^0.12.0",
+    "postcss": "^8.4.24",
+    "postcss-html": "^1.5.0",
+    "postcss-import": "^15.1.0",
+    "sirv": "2.0.3",
+    "tailwindcss": "3.3.3",
+    "yaml": "2.2.1"
+  },
+  "devDependencies": {
+    "env-cmd": "10.1.0",
+    "typescript": "4.9.4"
+  }
+}

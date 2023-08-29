@@ -1,0 +1,63 @@
+---
+import { Image } from 'astro:assets';
+import { documentToHtmlString } from "@contentful/rich-text-html-renderer";
+import type * as core from 'src/core';
+import Content from 'src/layouts/Content.astro';
+import Title from 'src/components/Title.astro';
+
+interface Props {
+  contact: core.types.Contact;
+  profile: core.types.Profile;
+}
+
+const {
+  contact,
+  profile
+} = Astro.props
+---
+<Content>
+  <Fragment slot="body">
+    <Title class="mb-8">
+      {contact.title}
+    </Title>
+    <article class="mb-8" set:html={documentToHtmlString(contact.body as any)} />
+    <ul class="text-base text-gray-700">
+      <li class="mb-4 w-full">
+        <span class="mr-2">
+          -
+        </span>
+        <a class="underline" href={`mailto:${profile.email}`}>
+          {profile.email}
+        </a>
+      </li>
+      {profile.linkedinUrl && (<li class="mb-4 w-full">
+        <span class="mr-2">
+          -
+        </span>
+        <a class="underline" href={profile.linkedinUrl}>
+          LinkedIn
+        </a>
+      </li>)}
+      {profile.instagramUrl && (<li class="mb-4 w-full">
+        <span class="mr-2">
+          -
+        </span>
+        <a class="underline" href={profile.instagramUrl}>
+          Instagram
+        </a>
+      </li>)}
+      {profile.twitterUrl && (<li class="mb-4 w-full">
+        <span class="mr-2">
+          -
+        </span>
+        <a class="underline" href={profile.twitterUrl}>
+          Twitter
+        </a>
+      </li>)}
+    </ul>
+  </Fragment>
+  <Fragment slot="image">
+    {contact.image ? <Image class="grayscale-[90%] object-cover w-full" src={contact.image.url} width={contact.image.width} height={contact.image.height} alt="Profile image" /> : undefined }
+  </Fragment>
+</Content>
+

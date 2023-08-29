@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+set -e # fail script on any command error to prevent silent failures on CI
+
+function main() {
+  export AWS_PAGER=""
+  SCRIPT_DIR=$(cd "$(dirname $0)"; pwd)
+  PROJECT_DIR=$(dirname $SCRIPT_DIR)
+  cd ${PROJECT_DIR}
+  STAGE=${1:?"Stage required"}
+  VALUE=$(aws ssm get-parameters --names eriko-ikeda-${STAGE} --with-decryption --query "Parameters[0].Value")
+  CONFIG=$(echo $VALUE | jq fromjson)
+  DEFAULT_LOCALE=$(echo $CONFIG | jq -r '.defaultLocale')
+  CONTENTFUL_ENVIRONMENT_ID=$(echo $CONFIG | jq -r '.contentfulEnvironmentId')
+  CONTENTFUL_SPACE_ID=$(echo $CONFIG | jq -r '.contentfulSpaceId')
+  CONTENTFUL_ACCESS_TOKEN=$(echo $CONFIG | jq -r '.contentfulAccessToken')
+  CONTENTFUL_HOST=$(echo $CONFIG | jq -r '.contentfulHost')
+  export DEFAULT_LOCALE=${DEFAULT_LOCALE}
+  export CONTENTFUL_ENVIRONMENT_ID=${CONTENTFUL_ENVIRONMENT_ID}
+  export CONTENTFUL_SPACE_ID=${CONTENTFUL_SPACE_ID}
+  export CONTENTFUL_ACCESS_TOKEN=${CONTENTFUL_ACCESS_TOKEN}
+  export CONTENTFUL_HOST=${CONTENTFUL_HOST}
+  npx astro build --mode ${STAGE}
+}
+
+main "$@"

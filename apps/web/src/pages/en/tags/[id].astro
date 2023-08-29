@@ -1,0 +1,91 @@
+---
+import * as IO from 'fp-ts/lib/IO';
+import * as Eq from 'fp-ts/lib/Eq';
+import * as Task from 'fp-ts/lib/Task';
+import * as ReaderTask from 'fp-ts/lib/ReaderTask';
+import * as ReadonlyArray from 'fp-ts/lib/ReadonlyArray';
+import * as Option from 'fp-ts/lib/Option';
+import * as string from 'fp-ts/lib/string';
+import { flow, pipe } from 'fp-ts/lib/function';
+import * as core from 'src/core';
+import * as array from 'src/lib/array';
+import * as app from 'src/app';
+import Root from 'src/layouts/Root.astro';
+import Body from 'src/layouts/Body.astro';
+import Head from 'src/layouts/Head.astro';
+import Tag from 'src/views/Tag.astro';
+
+export const getStaticPaths = async () => {
+  return pipe(
+    Task.fromIO(app.getAppContext),
+    Task.map(context => ({
+      ...context,
+      locale: 'en' as const,
+    })),
+    Task.chain(pipe(
+        ReaderTask.Do,
+        ReaderTask.apS('tags', pipe(
+          app.getTranslations,
+          ReaderTask.map(flow(
+            core.translation.groupByTags,
+            ReadonlyArray.map(tagGroup => tagGroup[0])
+          )),
+        )),
+        ReaderTask.map(({ tags }) => pipe(
+          tags,
+          ReadonlyArray.map(tag => ({
+            params: { id: tag.id }
+          })),
+        )),
+      ))
+  )()
+}
+
+const main = async () => {
+  const { id } = Astro.params;
+  return pipe(
+    Task.fromIO(app.getAppContext),
+    Task.map(context => ({
+      ...context,
+      locale: 'en' as const,
+    })),
+    Task.chain(pipe(
+        ReaderTask.Do,
+        ReaderTask.apS('context', ReaderTask.ask<app.types.AppPageContext>()),
+        ReaderTask.bind('router', ({context}) => ReaderTask.of(app.toRouter(context))),
+        ReaderTask.bind('time', ({context}) => ReaderTask.of(app.toTime(context))),
+        ReaderTask.apS('localization', app.getLocalization),
+        ReaderTask.apS('tag', ReaderTask.of({ id })),
+        ReaderTask.bind('translations', ({ tag }) => pipe(
+          app.getTranslations,
+          ReaderTask.map(core.translation.groupByTags),
+          ReaderTask.chain(tagGroups => pipe(
+            tagGroups,
+            ReadonlyArray.findFirst((tagGroup) => tagGroup[0].id === tag.id),
+            Option.fold(
+              () => () => {
+                 throw new Error('translation not found');
+              },
+              tagGroup => IO.of(tagGroup[1])
+            ),
+            ReaderTask.fromIO
+          ))
+        )),
+      ))
+  )()
+}
+
+const {
+  router,
+  time,
+  localization,
+  tag,
+  translations,
+} = await main();
+---
+<Root router={router}>
+  <Head title={tag.id} />
+  <Body localization={localization} router={router} time={time}>
+    <Tag router={router} tag={tag} translations={translations}/>
+  </Body>
+</Root>

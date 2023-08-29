@@ -1,0 +1,74 @@
+---
+import { Image } from 'astro:assets';
+import { documentToHtmlString } from "@contentful/rich-text-html-renderer";
+import * as core from 'src/core';
+import type { Router } from 'src/capabilities/router';
+import Content from 'src/layouts/Content.astro';
+import Title from 'src/components/Title.astro';
+
+interface Props {
+  router: Router;
+  about: core.types.About;
+  profile: core.types.Profile;
+}
+
+const { router, about, profile } = Astro.props;
+---
+
+<Content>
+  <Fragment slot="body">
+    <section class="sm:pb-12 pb-12 mb-12 border-gray-200 border-b">
+      <Title class="mb-8">
+        {about.title}
+      </Title>
+      <article set:html={documentToHtmlString(about.body as any)} />
+    </section>
+    <section class="flex sm:flex-row flex-col items-start mb-6">
+      <div class="w-32 mb-4">
+        <h2 class="sm:text-base text-base text-gray-500">Works</h2>
+      </div>
+      <ul class="text-base text-gray-700">
+        <li class="mb-4 w-full">
+          <a class="underline" href={core.path.fromPathByLocale('translations')(router.locale)}>
+              Translations
+          </a>
+        </li>
+      </ul>
+    </section>
+    <section class="flex sm:flex-row flex-col items-start mb-6">
+      <div class="w-32 mb-4">
+        <h2 class="sm:text-base text-base text-gray-500">Information</h2>
+      </div>
+      <ul class="text-base text-gray-700">
+        <li class="mb-4 w-full">
+          <a class="underline" href={core.path.fromPathByLocale('biography')(router.locale)}>
+            Biography
+          </a>
+        </li>
+        <li class="mb-4 w-full">
+          <a class="underline" href={core.path.fromPathByLocale('contact')(router.locale)}>
+            Contact
+          </a>
+        </li>
+        <li class="mb-4 w-full">
+          <a class="underline" href={profile.resumeEn.url} target="_blank">
+            Resume
+          </a>
+        </li>
+      </ul>
+    </section>
+  </Fragment>
+  <Fragment slot="image">
+    <Image class="grayscale-[90%] w-full object-cover rounded-sm" src={about.image.url} width={about.image.width} height={about.image.height} alt="Profile image" />
+  </Fragment>
+</Content>
+
+<style>
+  .site-title {
+    font-family: 'Karla-SemiBold';
+  }
+  .section {
+    grid-template-rows: 1fr auto;
+    @apply grow grid grid-cols-8 w-full;
+  }
+</style>

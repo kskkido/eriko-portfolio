@@ -1,0 +1,32 @@
+---
+import { identity, pipe } from 'fp-ts/lib/function';
+import * as Option from 'fp-ts/lib/Option';
+import * as ReadonlyArray from 'fp-ts/lib/ReadonlyArray';
+import * as core from 'src/core';
+
+interface Props {
+	href: string;
+  exact?: boolean;
+	class?: string;
+}
+
+const { href, exact = false, class: className } = Astro.props;
+const { pathname } = Astro.url
+---
+<a href={href} class:list={[
+    'text-link',
+    ...pipe(
+      [ Option.fromNullable(className),
+        pipe(
+          Option.guard(exact ? core.path.exactMatch(pathname, href) : core.path.startsWith(pathname, href)),
+          Option.map(() => 'active'),
+          Option.alt(() => Option.of('inactive')),
+        ),
+      ],
+      ReadonlyArray.filterMap(identity)
+      )
+      ]}
+  data-href={pathname}
+>
+  <slot />
+</a>

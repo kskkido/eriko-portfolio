@@ -1,0 +1,16 @@
+web:
+  dist: ./apps/web/dist
+web-infra:
+  stage: production
+  serviceName: "erikoIkedaWeb"
+  awsAccount: "350794894992"
+  awsRegion: 'ap-northeast-1'
+  deploymentStackName: "erikoIkedaWeb-deployment-prod"
+  applicationStackName: "erikoIkedaWeb-application-prod"
+  deployRoleName: "erikoIkedaWeb-deploy-role-prod"
+  deployUserName: "personal"
+  deployCiUserName: "ci"
+  s3BucketName: "eriko-ikeda-web"
+  sourceFilePath: "apps/web/dist"
+  targetFilePath: "/"
+

@@ -1,0 +1,38 @@
+---
+import * as Task from 'fp-ts/lib/Task';
+import * as ReaderTask from 'fp-ts/lib/ReaderTask';
+import { pipe } from 'fp-ts/lib/function';
+import * as app from 'src/app';
+import Layout from 'src/layouts/Layout.astro';
+import Home from 'src/views/Home.astro';
+
+const main = async () => {
+  return pipe(
+    Task.fromIO(app.getAppContext),
+    Task.map((context) => ({
+      ...context,
+      locale: 'ja' as const,
+    })),
+    Task.chain(pipe(
+      ReaderTask.Do,
+      ReaderTask.apS('context', ReaderTask.ask<app.types.AppPageContext>()),
+      ReaderTask.bind('router', ({context}) => ReaderTask.of(app.toRouter(context))),
+      ReaderTask.bind('time', ({context}) => ReaderTask.of(app.toTime(context))),
+      ReaderTask.apS('localization', app.getLocalization),
+      ReaderTask.apS('about', app.getAbout),
+      ReaderTask.apS('profile', app.getProfile),
+    ))
+  )()
+}
+
+const {
+  router,
+  time,
+  localization,
+  about
+} = await main();
+---
+<Layout title="Welcome" localization={localization} router={router} time={time}>
+  <Home router={router} about={about} profile={profile} />
+</Layout>
+

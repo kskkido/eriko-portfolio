@@ -1,0 +1,41 @@
+---
+import type { Localization } from 'src/core/types';
+import type { Router } from 'src/capabilities/router';
+import type { Time } from 'src/capabilities/time';
+import Root from 'src/layouts/Root.astro';
+import Body from 'src/layouts/Body.astro';
+import Head from 'src/layouts/Head.astro';
+
+interface Props {
+  title: string;
+  time: Time;
+  router: Router;
+  localization: Localization;
+}
+
+const main = () => {
+  const { title, time, router, localization } = Astro.props;
+
+  return {
+    title,
+    time, 
+    router,
+    localization,
+  }
+}
+
+const {
+  title,
+  time,
+  router,
+  localization
+} = main();
+---
+
+<Root router={router}>
+  <Head title={title} />
+  <Body localization={localization} router={router} time={time}>
+    <slot />
+  </Body>
+</Root>
+

@@ -1,0 +1,218 @@
+version: 2.1
+
+references:
+  main_branch: &main_branch main
+  filter_production_tags: &filter_production_tags
+    branches: { ignore: /.*/ }
+    tags: { only: /^production-.*/ }
+
+orbs:
+  aws-cli: circleci/aws-cli@3.1.3
+
+executors:
+  root:
+    docker:
+      - image: cimg/node:18.13
+    working_directory: ~/eriko-ikeda
+  base:
+    docker:
+      - image: cimg/base:2020.01
+    working_directory: ~/eriko-ikeda
+
+commands:
+  install_dependencies:
+    steps:
+      - restore_dependencies
+      - run: npm install
+  restore_dependencies:
+    steps:
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "package-lock.json" }}
+            - v1-dependencies
+  save_dependencies:
+    steps:
+      - save_cache:
+          key: v1-dependencies-{{ checksum "package-lock.json" }}
+          paths:
+            - node_modules/
+            - ./infra/node_modules/
+  setup_aws_profile:
+    steps:
+      - run: |
+          echo 'Setting AWS profile'
+          mkdir -p ~/.aws
+          echo '[default]' >> ~/.aws/credentials
+          echo "aws_access_key_id = $AWS_ACCESS_KEY_ID" >> ~/.aws/credentials
+          echo "aws_secret_access_key = $AWS_SECRET_ACCESS_KEY" >> ~/.aws/credentials
+          cat .circleci/.aws/config >> ~/.aws/config
+  setup_aws_cli:
+    steps:
+      - aws-cli/setup
+  build_web:
+    parameters:
+      env:
+        type: enum
+        enum: ['development', 'production']
+    steps:
+      - run: |
+          npm run build:web<< parameters.env >>
+  deploy_web:
+    parameters:
+      env:
+        type: enum
+        enum: ['development', 'production']
+    steps:
+      - run: |
+          unset AWS_ACCESS_KEY_ID
+          unset AWS_SECRET_ACCESS_KEY
+          export AWS_SDK_LOAD_CONFIG=1
+          export AWS_PROFILE=<< parameters.env >>
+          export AWS_REGION=${REGION}
+
+          npm run deploy:web:<< parameters.env >>
+  create_release_tag:
+    parameters:
+      env:
+        type: enum
+        enum: ['development', 'production']
+    steps:
+      - run: |
+          RELEASE_TAG="<< parameters.env >>-$(git rev-list --count HEAD)-$(git rev-parse --short HEAD)"
+          git tag $RELEASE_TAG
+          git push origin $RELEASE_TAG
+
+jobs:
+  start:
+    executor: base
+    steps:
+      - run: echo 'starting workflow'
+  done:
+    executor: base
+    steps:
+      - run: echo 'finished workflow'
+  dependencies:
+    executor: root
+    steps:
+      - checkout
+      - install_dependencies
+      - save_dependencies
+  build_web:
+    executor: root
+    parameters:
+      env:
+        type: enum
+        enum: ['development', 'production']
+    steps:
+      - checkout
+      - install_dependencies
+      - build_web:
+          env: << parameters.env >>
+      - persist_to_workspace:
+          root: .
+          paths:
+            - apps/web/dist
+  deploy_web:
+    executor: root
+    parameters:
+      env:
+        type: enum
+        enum: ['development', 'production']
+    steps:
+      - checkout
+      - install_dependencies
+      - setup_aws_profile
+      - setup_aws_cli
+      - attach_workspace:
+          at: .
+      - deploy_web:
+          env: << parameters.env >>
+  create_release_tag: 
+    executor: root
+    parameters:
+      env:
+        type: enum
+        enum: ['development', 'production']
+    steps:
+      - checkout
+      - create_release_tag:
+          env: << parameters.env >>
+
+workflows:
+  commit_check:
+    jobs:
+      - start:
+          filters:
+            branches:
+              ignore: *main_branch
+      - dependencies:
+          requires:
+            - start
+      - build_web:
+          name: build_web_development
+          env: development
+          requires:
+            - start
+      - build_web:
+          name: build_web_production
+          env: production
+          requires:
+            - start
+      - done:
+          requires:
+            - dependencies
+            - unit_test
+            - build_web_development
+            - build_web_production
+
+  deploy_web:
+    jobs:
+      - start:
+          filters:
+            branches:
+              only: *main_branch
+      - dependencies:
+          requires:
+            - start
+      - build_web:
+          name: build_web_development
+          env: development
+          requires:
+            - dependencies
+      - deploy_web:
+          name: deploy_web_development
+          env: development
+          context:
+            - aws-credentials
+          requires:
+            - build_web_development
+      - approve_web_production_deploy:
+          type: approval
+          requires:
+           - dependencies
+      - create_release_tag:
+          env: production
+          requires:
+            - approve_web_production_deploy
+
+  deploy_web_production:
+    jobs:
+      - start:
+          filters: *filter_production_tags
+      - dependencies:
+          requires:
+            - start
+          filters: *filter_production_tags
+      - build_web:
+          env: production
+          requires:
+            - dependencies
+          filters: *filter_production_tags
+      - deploy_web:
+          env: production
+          context:
+            - aws-credentials
+          requires:
+            - build_web
+          filters: *filter_production_tags
+

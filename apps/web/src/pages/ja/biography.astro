@@ -1,0 +1,37 @@
+---
+import * as Task from 'fp-ts/lib/Task';
+import * as ReaderTask from 'fp-ts/lib/ReaderTask';
+import { pipe } from 'fp-ts/lib/function';
+import * as app from 'src/app';
+import Layout from 'src/layouts/Layout.astro';
+import Biography from 'src/views/Biography.astro';
+
+const main = async () => {
+  return pipe(
+    Task.fromIO(app.getAppContext),
+    Task.map(context => ({
+      ...context,
+      locale: 'ja' as const,
+    })),
+    Task.chain(pipe(
+      ReaderTask.Do,
+      ReaderTask.apS('context', ReaderTask.ask<app.types.AppPageContext>()),
+      ReaderTask.bind('router', ({context}) => ReaderTask.of(app.toRouter(context))),
+      ReaderTask.bind('time', ({context}) => ReaderTask.of(app.toTime(context))),
+      ReaderTask.apS('localization', app.getLocalization),
+      ReaderTask.apS('biography', app.getBiography),
+    ))
+  )()
+}
+
+const {
+  router,
+  time,
+  localization,
+  biography
+} = await main();
+---
+<Layout title="Biography" localization={localization} router={router} time={time}>
+  <Biography router={router} biography={biography} />
+</Layout>
+

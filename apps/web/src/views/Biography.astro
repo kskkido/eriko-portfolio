@@ -1,0 +1,30 @@
+---
+import { Image } from 'astro:assets';
+import { documentToHtmlString } from "@contentful/rich-text-html-renderer";
+import type { Router } from 'src/capabilities/router';
+import type * as core from 'src/core';
+import Content from 'src/layouts/Content.astro';
+import Title from 'src/components/Title.astro';
+
+interface Props {
+  biography: core.types.Biography;
+  router: Router
+}
+
+const {
+  biography,
+  router,
+} = Astro.props
+---
+<Content>
+  <Fragment slot="body">
+    <Title class="mb-8">
+      {biography.title}
+    </Title>
+    <article set:html={documentToHtmlString(biography.body as any)} />
+  </Fragment>
+  <Fragment slot="image">
+    <Image class="grayscale-[90%] object-cover w-full rounded-sm" src={biography.image.url} width={biography.image.width} height={biography.image.height} alt="Profile image" />
+  </Fragment>
+</Content>
+

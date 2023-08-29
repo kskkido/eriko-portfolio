@@ -1,0 +1,55 @@
+---
+import * as core from 'src/core';
+import type { Router } from 'src/capabilities/router';
+import ListContent from 'src/layouts/ListContent.astro';
+import Title from 'src/components/Title.astro';
+import TranslationPreview from 'src/components/TranslationPreview.astro';
+
+interface Props {
+  router: Router;
+  translations: ReadonlyArray<core.types.Translation>;
+}
+
+const main = () => {
+  const { router, translations } = Astro.props;
+  return {
+    router,
+    translations
+  }
+}
+
+const {
+  router,
+  translations
+} = main()
+---
+<ListContent>
+  <Fragment slot="body">
+    <Title class="mb-8">
+      {'Translations'}
+      <span class="ml-1 text-sm font-normal align-top">
+        {translations.length}
+      </span>
+    </Title>
+    <ul class="w-full">
+      {core.translation.groupByPublishYearDesc(
+        translations
+      ).map(([year, group]) => (
+        <li>
+          <span class="block text-lg mb-6">
+            {year}
+          </span>
+          <ul class="w-full">
+            {group.map(translation => (
+              <li class="pb-8 mb-8 border-b border-gray-200">
+                <TranslationPreview router={router} translation={translation} />
+              </li>
+            ))}
+          </ul>
+        </li>
+      ))
+      }
+    </ul>
+  </Fragment>
+</ListContent>
+

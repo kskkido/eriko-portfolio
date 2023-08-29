@@ -1,0 +1,96 @@
+---
+import { Image } from 'astro:assets';
+import { pipe } from 'fp-ts/lib/function';
+import * as Option from 'fp-ts/lib/Option';
+import type { Router } from 'src/capabilities/router';
+import * as date from 'src/lib/date';
+import * as core from 'src/core';
+import Content from 'src/layouts/Content.astro';
+import Title from 'src/components/Title.astro';
+
+interface Props {
+  router: Router;
+  translation: core.types.Translation;
+  prevTranslation: Option.Option<core.types.Translation>;
+  nextTranslation: Option.Option<core.types.Translation>;
+}
+
+const { router, translation, prevTranslation, nextTranslation } = Astro.props;
+---
+<main class="flex flex-col flex-grow">
+  <section class="flex-grow pb-12 mb-8 border-gray-200 border-b">
+    <Title class="mb-8">
+      {translation.title}
+    </Title>
+    <div class="border-b border-gray-200 pb-12 mb-14">
+      <p class="text-gray-600 text-base mb-1">
+        {translation.description}
+      </p>
+      <div class="text-gray-500 text-sm">
+        <span class="block">
+          {date.toLocalizedIso(translation.publishedAt)}
+        </span>
+        {translation.tags.length > 0 && (
+          <ul class="mt-1">
+            {translation.tags.map((tag) => (
+              <li class="inline-block mr-2">
+                <a class="hover:underline" href={core.path.fromPathByLocale(`tags/${tag.id}`)(router.locale)}>
+                  #{tag.id}
+                </a>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </div>
+    <Content class="">
+      <Fragment slot="body">
+        <article set:html={core.tableOfContents.htmlFromRichTextDocument(translation.body)} />
+      </Fragment>
+      {translation.image && (
+        <Fragment slot="image">
+          <Image class="grayscale-[75%] object-cover w-full rounded-sm" src={translation.image.url} width={translation.image.width} height={translation.image.height} alt="Profile image" />
+        </Fragment>
+      )}
+    </Content>
+  </section>
+  <section class="text-base grid grid-cols-2">
+    <div class="col-start-1">
+      {pipe(
+        prevTranslation,
+        Option.fold(
+          () => <></>,
+          translation => (
+            <div>
+              <span class="block mb-4 text-sm text-gray-400">
+                Previous
+              </span>
+              <a class="text-link" href={core.path.fromPathByLocale(`/translations/${translation.id}`)(router.locale)}>
+                {translation.title}
+              </a>
+            </div>
+          )
+        )
+      )}
+    </div>
+    <div class="grid justify-items-end col-end-3">
+      {pipe(
+        nextTranslation,
+        Option.fold(
+          () => <></>,
+          translation => (
+            <div class="text-right">
+              <span class="block mb-4 text-sm text-gray-400">
+                Next
+              </span>
+              <a class="text-link" href={core.path.fromPathByLocale(`/translations/${translation.id}`)(router.locale)}>
+                {translation.title}
+              </a>
+            </div>
+          )
+        )
+      )}
+    </div>
+  </section>
+</main>
+

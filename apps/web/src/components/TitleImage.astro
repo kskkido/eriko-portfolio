@@ -1,0 +1,5 @@
+---
+import { Image } from 'astro:assets';
+const { class: className, ...rest } = Astro.props
+---
+<Image class:list={['inset-0 w-full', className]} {...rest} />

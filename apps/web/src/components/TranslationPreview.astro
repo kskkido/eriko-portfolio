@@ -1,0 +1,36 @@
+---
+import * as date from 'src/lib/date';
+import * as core from 'src/core';
+import type { Router } from 'src/capabilities/router';
+
+interface Props {
+  router: Router;
+  translation: core.types.Translation;
+}
+
+const { router, translation } = Astro.props;
+---
+<>
+  <div class="flex sm:flex-row sm:justify-between sm:items-center flex-col mb-2">
+    <a class="block text-lg text-gray-800 col-start-1 hover:underline" href={core.path.fromPathByLocale(`translations/${translation.id}`)(router.locale)}>
+      {translation.title}
+    </a>
+    <span class="text-sm text-gray-500 col-start-2 justify-self-end">
+      {date.toLocalizedIso(translation.publishedAt)}
+    </span>
+  </div>
+  {translation.tags.length > 0 && (
+    <ul class="col-span-full text-sm text-gray-500 mb-4">
+      {translation.tags.map(tag => (
+        <li class="inline mr-2">
+          <a class="hover:underline" href={core.path.fromPathByLocale(`tags/${tag.id}`)(router.locale)}>
+            #{tag.id}
+          </a>
+        </li>
+      ))}
+    </ul>
+  )}
+  <p class="text-sm text-gray-500">
+    {translation.description}
+  </p>
+</>
