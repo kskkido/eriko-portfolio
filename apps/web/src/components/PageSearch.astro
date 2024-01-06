@@ -19,7 +19,7 @@ const { class: className } = Astro.props;
 	</button>
 	<dialog
 		aria-label="search"
-		class="h-full max-h-full w-full max-w-full border border-zinc-400 bg-bgColor shadow backdrop:backdrop-blur sm:mx-auto sm:mb-auto sm:mt-16 sm:h-max sm:max-h-[calc(100%-8rem)] sm:min-h-[15rem] sm:w-5/6 sm:max-w-[48rem] sm:rounded-md"
+		class="h-full max-h-full w-full max-w-full bg-bgColor shadow backdrop:backdrop-blur sm:mx-auto sm:mb-auto sm:mt-16 sm:h-max sm:max-h-[calc(100%-8rem)] sm:min-h-[15rem] sm:w-5/6 sm:max-w-[48rem] sm:rounded-md"
 	>
 		<div class="dialog-frame flex flex-col gap-4 p-6 pt-12 sm:pt-6">
 			<button
@@ -37,48 +37,18 @@ const { class: className } = Astro.props;
   type Config = {
     window: Window;
     elementId: string;
+    container: HTMLElement;
   }
 
-  class PageSearch extends HTMLElement {
-    constructor() {
-      super();
-    }
-
-    connectedCallback() {
-      const config = {
-        window: window,
-        elementId: this.dataset.elementId || ''
-      }
-
-      if (typeof config.elementId !== 'string') {
-        return
-      } else {
-          this.main(config)
-      }
-    }
-
-    main(config: Config) {
-      const onIdle = config.window.requestIdleCallback || ((cb) => setTimeout(cb, 1));
-      onIdle(async () => {
-        const { PagefindUI } = await import("@pagefind/default-ui");
-        new PagefindUI({
-          element: `#${config.elementId}`,
-          resetStyles: false,
-          showImages: false,
-        });
-        this.setup(config);
-      })
-    }
-
-    setup(config: Config) {
-			const dialog = this.querySelector("dialog")!;
-			const dialogFrame = this.querySelector(".dialog-frame")!;
-  		const showModalButton = this.querySelector<HTMLButtonElement>("button[data-type=show-modal]")!;
-			const hideModalButton = this.querySelector<HTMLButtonElement>("button[data-type=hide-modal]")!;
+  const main = (config: Config) => {
+			const dialog = config.container.querySelector("dialog")!;
+			const dialogFrame = config.container.querySelector(".dialog-frame")!;
+  		const showModalButton = config.container.querySelector<HTMLButtonElement>("button[data-type=show-modal]")!;
+			const hideModalButton = config.container.querySelector<HTMLButtonElement>("button[data-type=hide-modal]")!;
 
 			const showModal = (event?: MouseEvent) => {
 				dialog?.showModal();
-				this.querySelector("input")?.focus();
+				config.container.querySelector("input")?.focus();
 				event?.stopPropagation();
 				config.window.addEventListener("click", onWindowClick);
 			};
@@ -109,6 +79,34 @@ const { class: className } = Astro.props;
         showModalButton.removeEventListener('click', showModal);
         hideModalButton.removeEventListener('click', hideModal);
         config.window.removeEventListener('keydown', onWindowKeyDown);
+      }
+  }
+
+  class PageSearch extends HTMLElement {
+    constructor() {
+      super();
+    }
+
+    connectedCallback() {
+      const config = {
+        window: window,
+        elementId: this.dataset.elementId || '',
+        container: this
+      }
+
+      if (typeof config.elementId !== 'string') {
+        return
+      } else {
+        const onIdle = config.window.requestIdleCallback || ((cb) => setTimeout(cb, 1));
+        onIdle(async () => {
+          const { PagefindUI } = await import("@pagefind/default-ui");
+          new PagefindUI({
+            element: `#${config.elementId}`,
+            resetStyles: false,
+            showImages: false,
+          });
+          main(config);
+        })
       }
     }
   }
