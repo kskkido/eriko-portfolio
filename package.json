@@ -9,10 +9,10 @@
     "preview": "npm run preview -w apps/web",
     "build:web:development": "npm run build development -w apps/web",
     "build:web:production": "npm run build production -w apps/web",
-    "deploy:web:development": "env-cmd -f ./configs/development/.env npx -w apps/web-infra cdk deploy --all --app \"npx ts-node bin/webApplication.ts\"",
-    "deploy:web:production": "env-cmd -f ./configs/production/.env npx -w apps/web-infra cdk deploy --all --app \"npx ts-node bin/webApplication.ts\"",
-    "deploy:web-infra:development": "env-cmd -f ./configs/development/.env npx -w apps/web-infra cdk deploy --all --app \"npx ts-node bin/webDeployment.ts\"",
-    "deploy:web-infra:production": "env-cmd -f ./configs/production/.env npx -w apps/web-infra cdk deploy --all --app \"npx ts-node bin/webDeployment.ts\""
+    "deploy:web:development": "env-cmd -f ./configs/development/.env npx -w apps/web-infra cdk deploy --all --app \"npx ts-node bin/webApplication.ts\" --require-approval never",
+    "deploy:web:production": "env-cmd -f ./configs/production/.env npx -w apps/web-infra cdk deploy --all --app \"npx ts-node bin/webApplication.ts\" --require-approval never",
+    "deploy:web-infra:development": "env-cmd -f ./configs/development/.env npx -w apps/web-infra cdk deploy --all --app \"npx ts-node bin/webDeployment.ts\" --require-approval never",
+    "deploy:web-infra:production": "env-cmd -f ./configs/production/.env npx -w apps/web-infra cdk deploy --all --app \"npx ts-node bin/webDeployment.ts\" --require-approval never"
   },
   "devDependencies": {
     "env-cmd": "10.1.0",

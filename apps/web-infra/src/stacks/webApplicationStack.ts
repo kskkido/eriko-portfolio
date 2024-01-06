@@ -61,7 +61,9 @@ export class WebApplicationStack extends cdk.Stack {
             console.log('Received request')
             console.log(request)
             const uri = request.uri;
-            if (uri.endsWith('/')) {
+            if (uri === '' || uri === '/') {
+              request.uri = '/en/index.html';
+            } else if (uri.endsWith('/')) {
               request.uri += 'index.html';
             } else if (!uri.includes('.')) {
               request.uri += '/index.html';
