@@ -1,5 +1,10 @@
 version: 2.1
 
+parameters:
+  deploy_web:
+    default: false
+    type: boolean
+
 references:
   main_branch: &main_branch main
   filter_production_tags: &filter_production_tags
@@ -56,7 +61,13 @@ commands:
         enum: ['development', 'production']
     steps:
       - run: |
-          npm run build:web<< parameters.env >>
+          unset AWS_ACCESS_KEY_ID
+          unset AWS_SECRET_ACCESS_KEY
+          export AWS_SDK_LOAD_CONFIG=1
+          export AWS_PROFILE=<< parameters.env >>
+          export AWS_REGION=ap-northeast-1
+
+          npm run build:web:<< parameters.env >>
   deploy_web:
     parameters:
       env:
@@ -68,7 +79,7 @@ commands:
           unset AWS_SECRET_ACCESS_KEY
           export AWS_SDK_LOAD_CONFIG=1
           export AWS_PROFILE=<< parameters.env >>
-          export AWS_REGION=${REGION}
+          export AWS_REGION=ap-northeast-1
 
           npm run deploy:web:<< parameters.env >>
   create_release_tag:
@@ -106,6 +117,8 @@ jobs:
     steps:
       - checkout
       - install_dependencies
+      - setup_aws_profile
+      - setup_aws_cli
       - build_web:
           env: << parameters.env >>
       - persist_to_workspace:
@@ -161,22 +174,24 @@ workflows:
       - done:
           requires:
             - dependencies
-            - unit_test
             - build_web_development
             - build_web_production
 
   deploy_web:
+    when:
+      or:
+        - << pipeline.parameters.deploy_web >>
+        - equal: [*main_branch, << pipeline.git.branch >>]
     jobs:
-      - start:
-          filters:
-            branches:
-              only: *main_branch
+      - start
       - dependencies:
           requires:
             - start
       - build_web:
           name: build_web_development
           env: development
+          context:
+            - aws-credentials
           requires:
             - dependencies
       - deploy_web:
@@ -186,14 +201,10 @@ workflows:
             - aws-credentials
           requires:
             - build_web_development
-      - approve_web_production_deploy:
-          type: approval
-          requires:
-           - dependencies
       - create_release_tag:
           env: production
           requires:
-            - approve_web_production_deploy
+            - start
 
   deploy_web_production:
     jobs:
@@ -205,6 +216,8 @@ workflows:
           filters: *filter_production_tags
       - build_web:
           env: production
+          context:
+            - aws-credentials
           requires:
             - dependencies
           filters: *filter_production_tags
