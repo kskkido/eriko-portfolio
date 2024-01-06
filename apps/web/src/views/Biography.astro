@@ -18,13 +18,14 @@ const {
 ---
 <Content>
   <Fragment slot="body">
-    <Title class="mb-8">
+    <Title class="">
       {biography.title}
     </Title>
+    <Image class="sm:hidden block mb-8 max-h-64 grayscale-[90%] w-full object-cover rounded-sm" src={biography.image.url} width={biography.image.width} height={biography.image.height} alt="title image" />
     <article set:html={documentToHtmlString(biography.body as any)} />
   </Fragment>
   <Fragment slot="image">
-    <Image class="grayscale-[90%] object-cover w-full rounded-sm" src={biography.image.url} width={biography.image.width} height={biography.image.height} alt="Profile image" />
+    <Image class="grayscale-[90%] object-cover w-full rounded-sm" src={biography.image.url} width={biography.image.width} height={biography.image.height} alt="title image" />
   </Fragment>
 </Content>
 

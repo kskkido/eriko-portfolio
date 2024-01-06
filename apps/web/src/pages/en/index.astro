@@ -37,11 +37,8 @@ const {
 
 ---
 <Root router={router}>
-  <Head title={about.title}>
-    <meta name="description" content={about.body}/>
-    <meta name="og:description" content={about.body}/>
-  </Head>
-  <Body localization={localization} router={router} time={time}>
+  <Head title={about.title} />
+  <Body profile={profile} localization={localization} router={router} time={time}>
     <Home router={router} about={about} profile={profile} />
   </Body>
 </Root>

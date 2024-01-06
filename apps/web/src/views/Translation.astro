@@ -19,10 +19,10 @@ const { router, translation, prevTranslation, nextTranslation } = Astro.props;
 ---
 <main class="flex flex-col flex-grow">
   <section class="flex-grow pb-12 mb-8 border-gray-200 border-b">
-    <Title class="mb-8">
+    <Title class="">
       {translation.title}
     </Title>
-    <div class="border-b border-gray-200 pb-12 mb-14">
+    <div class="border-b border-gray-200 sm:pb-12 sm:mb-12 pb-8 mb-8">
       <p class="text-gray-600 text-base mb-1">
         {translation.description}
       </p>
@@ -45,11 +45,14 @@ const { router, translation, prevTranslation, nextTranslation } = Astro.props;
     </div>
     <Content class="">
       <Fragment slot="body">
+        {translation.image && (
+          <Image class="sm:hidden block mb-8 max-h-64 grayscale-[90%] w-full object-cover rounded-sm" src={translation.image.url} width={translation.image.width} height={translation.image.height} alt="title image" />
+        )}
         <article set:html={core.tableOfContents.htmlFromRichTextDocument(translation.body)} />
       </Fragment>
       {translation.image && (
         <Fragment slot="image">
-          <Image class="grayscale-[75%] object-cover w-full rounded-sm" src={translation.image.url} width={translation.image.width} height={translation.image.height} alt="Profile image" />
+          <Image class="grayscale-[90%] object-cover w-full rounded-sm" src={translation.image.url} width={translation.image.width} height={translation.image.height} alt="title image" />
         </Fragment>
       )}
     </Content>
