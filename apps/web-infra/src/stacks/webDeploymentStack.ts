@@ -77,9 +77,7 @@ export class WebDeploymentStack extends cdk.Stack {
                 'cloudformation:UpdateStack',
                 'cloudformation:UpdateTerminationProtection',
               ],
-              resources: [
-                `arn:aws:cloudformation:${this.region}:${this.account}:stack/${props.context.serviceName}-${props.context.stage}*`,
-              ],
+              resources: [`arn:aws:cloudformation:*:${this.account}:stack/*`],
             }),
           ],
         }),
@@ -109,6 +107,29 @@ export class WebDeploymentStack extends cdk.Stack {
                 'cloudfront:ListCloudFrontOriginAccessIdentities',
               ],
               resources: ['*'],
+            }),
+          ],
+        }),
+        DeploySsm: new iam.PolicyDocument({
+          statements: [
+            new iam.PolicyStatement({
+              effect: iam.Effect.ALLOW,
+              actions: ['ssm:Get*'],
+              resources: [`arn:aws:ssm:*:${this.account}:parameter/*`],
+            }),
+            new iam.PolicyStatement({
+              effect: iam.Effect.ALLOW,
+              actions: ['kms:*'],
+              resources: [`arn:aws:kms:*:${this.account}:*`],
+            }),
+          ],
+        }),
+        DeployIam: new iam.PolicyDocument({
+          statements: [
+            new iam.PolicyStatement({
+              effect: iam.Effect.ALLOW,
+              actions: ['iam:PassRole'],
+              resources: [`arn:aws:iam::${this.account}:role/cdk*`],
             }),
           ],
         }),

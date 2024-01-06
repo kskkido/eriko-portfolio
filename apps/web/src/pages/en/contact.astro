@@ -21,9 +21,6 @@ const main = async () => {
       ReaderTask.bind('router', ({context}) => ReaderTask.of(app.toRouter(context))),
       ReaderTask.bind('time', ({context}) => ReaderTask.of(app.toTime(context))),
       ReaderTask.apS('localization', app.getLocalization),
-      ReaderTask.apS('translations', app.getTranslations),
-      ReaderTask.apS('blogPosts', app.getBlogPosts),
-      ReaderTask.apS('welcome', app.getWelcome),
       ReaderTask.apS('contact', app.getContact),
       ReaderTask.apS('profile', app.getProfile),
     ))
@@ -41,7 +38,7 @@ const {
 ---
 <Root router={router}>
   <Head title={contact.title} />
-  <Body localization={localization} router={router} time={time}>
+  <Body profile={profile} localization={localization} router={router} time={time}>
     <Contact router={router} contact={contact} profile={profile} />
   </Body>
 </Root>

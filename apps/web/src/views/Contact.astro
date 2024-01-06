@@ -17,9 +17,10 @@ const {
 ---
 <Content>
   <Fragment slot="body">
-    <Title class="mb-8">
+    <Title class="">
       {contact.title}
     </Title>
+    {contact.image && <Image class="sm:hidden block mb-8 max-h-64 grayscale-[90%] w-full object-cover rounded-sm" src={contact.image.url} width={contact.image.width} height={contact.image.height} alt="title image" />}
     <article class="mb-8" set:html={documentToHtmlString(contact.body as any)} />
     <ul class="text-base text-gray-700">
       <li class="mb-4 w-full">
@@ -57,7 +58,7 @@ const {
     </ul>
   </Fragment>
   <Fragment slot="image">
-    {contact.image ? <Image class="grayscale-[90%] object-cover w-full" src={contact.image.url} width={contact.image.width} height={contact.image.height} alt="Profile image" /> : undefined }
+    {contact.image ? <Image class="grayscale-[90%] object-cover w-full" src={contact.image.url} width={contact.image.width} height={contact.image.height} alt="title image" /> : undefined }
   </Fragment>
 </Content>
 

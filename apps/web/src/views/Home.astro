@@ -14,52 +14,18 @@ interface Props {
 
 const { router, about, profile } = Astro.props;
 ---
-
 <Content>
   <Fragment slot="body">
-    <section class="sm:pb-12 pb-12 mb-12 border-gray-200 border-b">
-      <Title class="mb-8">
+    <section class="sm:pb-12 pb-12 mb-12">
+      <Title class="">
         {about.title}
       </Title>
+      <Image class="sm:hidden block mb-8 max-h-64 grayscale-[90%] w-full object-cover rounded-sm" src={about.image.url} width={about.image.width} height={about.image.height} alt="title image" />
       <article set:html={documentToHtmlString(about.body as any)} />
-    </section>
-    <section class="flex sm:flex-row flex-col items-start mb-6">
-      <div class="w-32 mb-4">
-        <h2 class="sm:text-base text-base text-gray-500">Works</h2>
-      </div>
-      <ul class="text-base text-gray-700">
-        <li class="mb-4 w-full">
-          <a class="underline" href={core.path.fromPathByLocale('translations')(router.locale)}>
-              Translations
-          </a>
-        </li>
-      </ul>
-    </section>
-    <section class="flex sm:flex-row flex-col items-start mb-6">
-      <div class="w-32 mb-4">
-        <h2 class="sm:text-base text-base text-gray-500">Information</h2>
-      </div>
-      <ul class="text-base text-gray-700">
-        <li class="mb-4 w-full">
-          <a class="underline" href={core.path.fromPathByLocale('biography')(router.locale)}>
-            Biography
-          </a>
-        </li>
-        <li class="mb-4 w-full">
-          <a class="underline" href={core.path.fromPathByLocale('contact')(router.locale)}>
-            Contact
-          </a>
-        </li>
-        <li class="mb-4 w-full">
-          <a class="underline" href={profile.resumeEn.url} target="_blank">
-            Resume
-          </a>
-        </li>
-      </ul>
     </section>
   </Fragment>
   <Fragment slot="image">
-    <Image class="grayscale-[90%] w-full object-cover rounded-sm" src={about.image.url} width={about.image.width} height={about.image.height} alt="Profile image" />
+    <Image class="grayscale-[90%] w-full object-cover rounded-sm" src={about.image.url} width={about.image.width} height={about.image.height} alt="title image" />
   </Fragment>
 </Content>
 

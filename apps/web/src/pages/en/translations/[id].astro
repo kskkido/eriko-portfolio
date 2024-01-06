@@ -49,6 +49,7 @@ const main = async () => {
         ReaderTask.bind('router', ({context}) => ReaderTask.of(app.toRouter(context))),
         ReaderTask.bind('time', ({context}) => ReaderTask.of(app.toTime(context))),
         ReaderTask.apS('localization', app.getLocalization),
+        ReaderTask.apS('profile', app.getProfile),
         ReaderTask.apS('translations', app.getTranslations),
         ReaderTask.bind('translation', ({ translations }) => pipe(
           translations,
@@ -87,6 +88,7 @@ const {
   router,
   time,
   localization,
+  profile,
   translation,
   prevTranslation,
   nextTranslation
@@ -98,7 +100,7 @@ const {
     <meta name="og:description" content={translation.description}/>
     {translation.tags.length > 0 && <meta name="keywords" content={translation.tags.map(tag => tag.id).join(',')}/>}
   </Head>
-  <Body localization={localization} router={router} time={time}>
+  <Body profile={profile} localization={localization} router={router} time={time}>
     <Translation router={router} translation={translation} prevTranslation={prevTranslation} nextTranslation={nextTranslation}/>
   </Body>
 </Root>
