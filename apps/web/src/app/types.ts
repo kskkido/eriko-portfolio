@@ -37,7 +37,6 @@ export type ImageEntry = t.TypeOf<typeof ImageEntry>;
 export const MediaEntry = t.type({
   fields: t.type({
     title: t.string,
-    description: t.string,
     file: contentfulExtension.MediaFile,
   }),
 });
@@ -46,6 +45,7 @@ export type MediaEntry = t.TypeOf<typeof MediaEntry>;
 
 export const AboutTable = t.type({
   title: t.string,
+  description: t.string,
   body: contentfulExtension.RichTextDocument,
   image: ImageEntry,
 });
@@ -89,7 +89,10 @@ export type TranslationTable = t.TypeOf<typeof TranslationTable>;
 
 export const ProfileTable = t.intersection([
   t.type({
+    name: t.string,
+    title: t.string,
     email: t.string,
+    resumeEn: MediaEntry,
   }),
   t.partial({
     linkedinUrl: t.string,

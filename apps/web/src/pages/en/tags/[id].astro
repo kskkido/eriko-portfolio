@@ -55,8 +55,7 @@ const main = async () => {
         ReaderTask.bind('router', ({context}) => ReaderTask.of(app.toRouter(context))),
         ReaderTask.bind('time', ({context}) => ReaderTask.of(app.toTime(context))),
         ReaderTask.apS('localization', app.getLocalization),
-        ReaderTask.apS('profile', app.getProfile),
-        ReaderTask.apS('tag', ReaderTask.of({ id })),
+        ReaderTask.apS('tag', ReaderTask.of({ id: id ?? '' })),
         ReaderTask.bind('translations', ({ tag }) => pipe(
           app.getTranslations,
           ReaderTask.map(core.translation.groupByTags),
@@ -81,13 +80,12 @@ const {
   time,
   localization,
   tag,
-  profile,
   translations,
 } = await main();
 ---
 <Root router={router}>
   <Head title={tag.id} />
-  <Body profile={profile} localization={localization} router={router} time={time}>
+  <Body localization={localization} router={router} time={time}>
     <Tag router={router} tag={tag} translations={translations}/>
   </Body>
 </Root>

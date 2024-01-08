@@ -21,6 +21,7 @@ const main = async () => {
       ReaderTask.bind('router', ({context}) => ReaderTask.of(app.toRouter(context))),
       ReaderTask.bind('time', ({context}) => ReaderTask.of(app.toTime(context))),
       ReaderTask.apS('localization', app.getLocalization),
+      ReaderTask.apS('translations', app.getTranslations),
       ReaderTask.apS('about', app.getAbout),
       ReaderTask.apS('profile', app.getProfile),
     ))
@@ -33,13 +34,16 @@ const {
   localization,
   about,
   profile,
+  translations
 } = await main();
 
 ---
 <Root router={router}>
-  <Head title={about.title} />
-  <Body profile={profile} localization={localization} router={router} time={time}>
-    <Home router={router} about={about} profile={profile} />
+  <Head title={about.title}>
+    <meta name="description" content={about.description}>
+  </Head>
+  <Body localization={localization} router={router} time={time}>
+    <Home router={router} about={about} profile={profile} translations={translations} />
   </Body>
 </Root>
 

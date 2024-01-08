@@ -3,71 +3,82 @@ import { Image } from 'astro:assets';
 import { documentToHtmlString } from "@contentful/rich-text-html-renderer";
 import * as core from 'src/core';
 import type { Router } from 'src/capabilities/router';
-import Content from 'src/layouts/Content.astro';
-import Title from 'src/components/Title.astro';
+import TranslationPreview from 'src/components/TranslationBlockPreview.astro';
 
 interface Props {
   router: Router;
   about: core.types.About;
   profile: core.types.Profile;
+  translations: ReadonlyArray<core.types.Translation>;
 }
 
-const { router, about, profile } = Astro.props;
+const { router, translations, about, profile } = Astro.props;
 ---
-<Content>
-  <Fragment slot="body">
-    <section class="sm:pb-12 pb-12 mb-12 border-gray-200 border-b">
-      <Title class="mb-8">
-        {about.title}
-      </Title>
-      <Image class="sm:hidden block mb-8 max-h-64 grayscale-[90%] w-full object-cover rounded-sm" src={about.image.url} width={about.image.width} height={about.image.height} alt="title image" />
-      <article set:html={documentToHtmlString(about.body as any)} />
-    </section>
-    <section class="md:hidden block">
-      <div class="flex-col items-start mb-6">
-        <div class="w-32 mb-4">
-          <h2 class="sm:text-base text-base text-gray-500">Works</h2>
-        </div>
-        <ul class="text-base text-gray-700">
-          <li class="mb-4 w-full">
-            <a class="underline" href={core.path.fromPathByLocale('translations')(router.locale)}>
-                Translations
-            </a>
-          </li>
-        </ul>
-      </div>
-      <div class="flex-col items-start mb-6">
-        <div class="w-32 mb-4">
-          <h2 class="sm:text-base text-base text-gray-500">Information</h2>
-        </div>
-        <ul class="text-base text-gray-700">
-          <li class="mb-4 w-full">
-            <a class="underline" href={core.path.fromPathByLocale('biography')(router.locale)}>
-              Biography
-            </a>
-          </li>
-          <li class="mb-4 w-full">
-            <a class="underline" href={core.path.fromPathByLocale('contact')(router.locale)}>
-              Contact
-            </a>
-          </li>
-          <li class="mb-4 w-full">
-            <a class="underline" href={profile.resumeEn.url} target="_blank">
-              CV
-            </a>
-          </li>
-        </ul>
-      </div>
-    </section>
-  </Fragment>
-  <Fragment slot="image">
-    <Image class="grayscale-[90%] w-full object-cover rounded-sm" src={about.image.url} width={about.image.width} height={about.image.height} alt="title image" />
-  </Fragment>
-</Content>
+<main class="flex-grow w-full">
+  <section class="sm:pb-10 pb-10 mb-10 border-gray-200 border-b">
+    <h1 class="title sm:text-5xl text-4xl text-gray-800 mb-4">
+      {profile.name}
+    </h1>
+    <h2 class="text-xl text-gray-700 mb-10">
+      {profile.title}
+    </h2>
+    <Image class="block mb-10 max-h-80 grayscale-[90%] w-full object-cover rounded-sm" src={about.image.url} width={about.image.width} height={about.image.height} alt="title image" />
+    <div class="flex flex-col items-start text-gray-500 text-sm sm:text-base">
+      <ul class="flex flex-row flex-wrap w-full mb-1">
+        <li class="mr-3">
+          <a class="text-link" href={`mailto:${profile.email}`}>
+            {profile.email}
+          </a>
+        </li>
+        {profile.linkedinUrl && (<li class="mr-3">
+          <a class="text-link" href={profile.linkedinUrl}>
+            LinkedIn
+          </a>
+        </li>)}
+        {profile.instagramUrl && (<li class="mr-3">
+          <a class="text-link" href={profile.instagramUrl}>
+            Instagram
+          </a>
+        </li>)}
+        {profile.twitterUrl && (<li class="mr-3">
+          <a class="text-link" href={profile.twitterUrl}>
+            Twitter
+          </a>
+        </li>)}
+      </ul>
+      <ul class="flex flex-row flex-wrap">
+        <li class="mr-2">
+          <a class="text-link" href={profile.resumeEn.url} target="_blank">
+            Resume
+          </a>
+        </li>
+      </ul>
+    </div>
+  </section>
+  <section class="sm:pb-10 pb-10 mb-10 border-gray-200 border-b">
+    <span class="block text-lg text-gray-600 sm:mb-8 mb-6 tracking-wide">
+      About
+    </span>
+    <article set:html={documentToHtmlString(about.body as any)} />
+  </section>
+  <section class="sm:pb-10 mb-10">
+    <span class="block text-lg text-gray-600 sm:mb-8 mb-6 tracking-wide">
+      Projects
+    </span>
+    <ul class="w-full">
+      {translations.map(translation => (
+        <li class="pb-8 mb-10 border-b border-gray-200">
+          <TranslationPreview router={router} translation={translation} />
+        </li>
+      ))}
+    </ul>
+  </section>
+</main>
 
 <style>
-  .site-title {
-    font-family: 'Karla-SemiBold';
+  .title {
+    @apply font-semibold;
+    font-family: "Georgia","Times New Roman","sans-serif";
   }
   .section {
     grid-template-rows: 1fr auto;

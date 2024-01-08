@@ -1,0 +1,42 @@
+---
+import * as date from 'src/lib/date';
+import * as core from 'src/core';
+import type { Router } from 'src/capabilities/router';
+
+interface Props {
+  router: Router;
+  translations: core.types.Translation[];
+}
+
+const { router, translations } = Astro.props;
+---
+<table>
+  <thead>
+    <tr>
+      <th>
+        Year
+      </th>
+      <th>
+        Title
+      </th>
+      <th>
+        Link
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    {translations.map(translation => (
+      <tr>
+        <td>
+          {translation.publishedAt.getFullYear()}
+        </td>
+        <td>
+          {translation.title}
+        </td>
+        <td>
+          {translation.title}
+        </td>
+      </tr>
+    ))}
+  </tbody>
+<table>

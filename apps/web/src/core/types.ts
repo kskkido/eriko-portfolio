@@ -24,6 +24,7 @@ export type Media = t.TypeOf<typeof Media>;
 
 export const About = t.type({
   title: t.string,
+  description: t.string,
   body: contentful.RichTextDocument,
   image: Image,
 });
@@ -70,6 +71,8 @@ export const Translation = t.type({
 export type Translation = t.TypeOf<typeof Translation>;
 
 export type Profile = {
+  name: string;
+  title: string;
   email: string;
   resumeEn: Media;
   linkedinUrl: string | null;

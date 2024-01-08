@@ -1,0 +1,49 @@
+---
+import * as date from 'src/lib/date';
+import * as core from 'src/core';
+import type { Router } from 'src/capabilities/router';
+
+interface Props {
+  router: Router;
+  translation: core.types.Translation;
+}
+
+const { router, translation } = Astro.props;
+---
+<div class="grid pb-1 transition-all sm:grid-cols-[max-content_1fr] sm:gap-x-12">
+  <div class="mb-2 mt-1 text-sm tracking-wide text-gray-500">
+    <span>
+      {date.toLocalizedIso(translation.publishedAt)}
+    </span>
+  </div>
+  <div class="">
+    {translation.link && (
+      <a class="text-xl text-gray-700 col-start-1 inline-flex items-center text-link" href={translation.link} target="_blank">
+        <span class="mr-2">
+          {translation.title}
+        </span>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="inline-block h-4 w-4" aria-hidden="true"><path fill-rule="evenodd" d="M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z" clip-rule="evenodd"></path></svg>
+      </a>
+    )}
+    {!translation.link && (
+      <span class="block text-xl text-gray-700 col-start-1">
+        {translation.title}
+      </span>
+    )}
+    {translation.tags.length > 0 && (
+      <ul class="col-span-full text-sm text-gray-500 mt-2">
+        {translation.tags.map(tag => (
+          <li class="inline mr-2">
+            <a class="hover:underline" href={core.path.fromPathByLocale(`tags/${tag.id}`)(router.locale)}>
+              #{tag.id}
+            </a>
+          </li>
+        ))}
+      </ul>
+    )}
+    <p class="text-sm text-gray-500 mt-4">
+      {translation.description}
+    </p>
+  </div>
+</div>
+

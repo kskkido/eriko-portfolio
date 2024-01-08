@@ -147,6 +147,8 @@ export const getProfile: ReaderTask.ReaderTask<
               pipe(
                 types.ProfileTable.decode(entry.fields),
                 Either.map((schema) => ({
+                  name: schema.name,
+                  title: schema.title,
                   email: schema.email,
                   resumeEn: schema.resumeEn,
                   linkedinUrl:
